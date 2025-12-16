@@ -2,27 +2,47 @@
 
 ## フェーズ1: プロジェクト初期設定
 
-- [ ] Next.jsプロジェクトの作成（App Router）
-- [ ] Tailwind CSSのセットアップ
-- [ ] TypeScript設定の確認・調整
-- [ ] ESLint / Prettier の設定
-- [ ] .gitignoreファイルの作成・設定
-- [ ] ディレクトリ構成の作成
+- [x] Next.jsプロジェクトの作成（App Router + Tailwind CSS + TypeScript + ESLint）
+  ```bash
+  npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir
+  ```
+- [x] .gitignoreファイルの確認・追加設定
+- [x] 環境変数ファイル（.env.local）の作成
+  ```env
+  ANTHROPIC_API_KEY=your_api_key
+  DATABASE_URL=mongodb+srv://...
+  ```
+- [x] 追加パッケージのインストール
+  ```bash
+  # バックエンド関連
+  npm install hono @hono/node-server
+
+  # データベース関連
+  npm install @prisma/client
+  npm install -D prisma
+
+  # AI関連
+  npm install @mastra/core @ai-sdk/anthropic
+  ```
+- [x] ディレクトリ構成の作成
 
 ## フェーズ2: データベース設定
 
-- [ ] Prismaのインストール・初期化
+- [ ] Prismaの初期化
+  ```bash
+  npx prisma init
+  ```
 - [ ] MongoDB接続設定（schema.prisma）
 - [ ] Prismaクライアントの生成
-- [ ] 環境変数ファイル（.env）の作成
+  ```bash
+  npx prisma generate
+  ```
 
 ## フェーズ3: バックエンド構築
 
-- [ ] Honoのインストール・セットアップ
 - [ ] Next.js App RouterへのHono統合（API Routes）
+- [ ] Mastraエージェントの設定（Claude Sonnet 4.5）
 - [ ] `/api/chat` エンドポイントの作成
-- [ ] Mastraのインストール・設定
-- [ ] Claude Sonnet 4.5を使用したAIエージェントの構築
 - [ ] ストリーミングレスポンスの実装
 
 ## フェーズ4: フロントエンド構築
@@ -57,7 +77,7 @@
 
 - [ ] Dockerfileの作成
 - [ ] .dockerignoreの作成
-- [ ] 環境変数の整理
+- [ ] 本番用環境変数の整理
 - [ ] ビルド・起動スクリプトの確認
 
 ## フェーズ8: Cloud Runへのデプロイ
@@ -66,29 +86,21 @@
 - [ ] Cloud Run用の設定（同時接続5〜10人想定）
 - [ ] Dockerイメージのビルド・プッシュ
 - [ ] Cloud Runへのデプロイ
-- [ ] 環境変数の設定（ANTHROPIC_API_KEY等）
+- [ ] 環境変数の設定（Cloud Run管理画面）
+  - ANTHROPIC_API_KEY
+  - DATABASE_URL
+  - NODE_ENV=production
 - [ ] 本番環境での動作確認
 
-## 補足: 必要なパッケージ一覧
+## 補足: パッケージ一覧（参考）
 
-### 本番依存（dependencies）
-- next
-- react
-- react-dom
-- hono
-- @hono/node-server
-- @prisma/client
-- @mastra/core
-- @anthropic-ai/sdk
+### create-next-appで自動インストール
+- next, react, react-dom
+- typescript, @types/node, @types/react, @types/react-dom
+- tailwindcss, postcss, autoprefixer
+- eslint, eslint-config-next
 
-### 開発依存（devDependencies）
-- typescript
-- @types/node
-- @types/react
-- @types/react-dom
-- tailwindcss
-- postcss
-- autoprefixer
-- prisma
-- eslint
-- eslint-config-next
+### フェーズ1で追加インストール
+- hono, @hono/node-server
+- @prisma/client, prisma
+- @mastra/core, @anthropic-ai/sdk
