@@ -28,12 +28,12 @@
 
 ## フェーズ2: データベース設定
 
-- [ ] Prismaの初期化
+- [x] Prismaの初期化
   ```bash
-  npx prisma init
+  npx prisma init --datasource-provider mongodb
   ```
-- [ ] MongoDB接続設定（schema.prisma）
-- [ ] Prismaクライアントの生成
+- [x] MongoDB接続設定（schema.prisma）
+- [x] Prismaクライアントの生成
   ```bash
   npx prisma generate
   ```
