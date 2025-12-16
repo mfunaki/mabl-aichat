@@ -23,7 +23,7 @@
 
 ### AI
 - **AIエージェントフレームワーク**: Mastra
-- **AIモデル**: Claude Sonnet 4.5（Anthropic）
+- **AIモデル**: Claude Sonnet 4（Anthropic）
 
 ## 機能要件
 
@@ -170,26 +170,67 @@ NODE_ENV=production
 - 環境変数はCloud Runの設定で管理
 - 想定同時接続数: 5〜10人
 
-## 開発コマンド
+## 開発コマンド（Makefile）
+
+プロジェクトにはMakefileが用意されており、以下のコマンドで各種操作を実行できます。
+
+### 初期化
 
 ```bash
-# 依存関係のインストール
-npm install
+make install          # 依存関係をインストール
+make prisma-generate  # Prismaクライアントを生成
+make setup            # 初期セットアップ (install + prisma-generate)
+```
 
-# 開発サーバー起動
-npm run dev
+### 開発
 
-# ビルド
-npm run build
+```bash
+make dev              # 開発サーバーを起動
+make build            # 本番用ビルド
+make start            # 本番サーバーを起動
+make lint             # ESLintを実行
+```
 
-# 本番サーバー起動
-npm start
+### Docker
 
-# Prismaクライアント生成
-npx prisma generate
+```bash
+make docker-build     # Dockerイメージをビルド
+make docker-run       # Dockerコンテナを起動（ローカルテスト用）
+```
 
-# Dockerビルド
-docker build -t mabl-aichat .
+### Cloud Run デプロイ
+
+```bash
+# デフォルト設定でデプロイ
+make deploy
+
+# プロジェクトIDとリージョンを指定してデプロイ
+make deploy GCP_PROJECT=your-project-id GCP_REGION=asia-northeast1
+```
+
+デプロイ時の環境変数:
+- `GCP_PROJECT`: Google Cloud プロジェクトID（必須）
+- `GCP_REGION`: デプロイ先リージョン（デフォルト: asia-northeast1）
+- `SERVICE_NAME`: Cloud Runサービス名（デフォルト: mabl-aichat）
+
+**注意**: `ANTHROPIC_API_KEY`と`DATABASE_URL`はCloud Runコンソールで設定してください。
+
+### その他
+
+```bash
+make clean            # ビルド成果物を削除
+make health-check     # ヘルスチェックAPIを確認
+make help             # 利用可能なコマンド一覧を表示
+```
+
+### npmコマンド（直接実行）
+
+```bash
+npm install           # 依存関係のインストール
+npm run dev           # 開発サーバー起動
+npm run build         # ビルド
+npm start             # 本番サーバー起動
+npx prisma generate   # Prismaクライアント生成
 ```
 
 ## 今後の拡張可能性（参考）
