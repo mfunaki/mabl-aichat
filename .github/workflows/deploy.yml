@@ -60,8 +60,7 @@ jobs:
             --memory 512Mi \
             --cpu 1 \
             --concurrency 80 \
-            --set-env-vars NODE_ENV=production \
-            --update-env-vars BASIC_AUTH_USER=${{ secrets.BASIC_AUTH_USER }},BASIC_AUTH_PASSWORD=${{ secrets.BASIC_AUTH_PASSWORD }}
+            --update-env-vars NODE_ENV=production,BASIC_AUTH_USER=${{ secrets.BASIC_AUTH_USER }},BASIC_AUTH_PASSWORD=${{ secrets.BASIC_AUTH_PASSWORD }}
 
       - name: Show deployment URL
         run: |
