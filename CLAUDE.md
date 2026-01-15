@@ -1,242 +1,73 @@
-# mabl-aichat
+# CLAUDE.md
 
-エンターテイメント向けAIチャットボットWebアプリケーション
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## プロジェクト概要
 
-- **プロジェクト名**: mabl-aichat
-- **用途**: エンターテイメント向けチャットボット
-- **対象ユーザー**: 一般ユーザー
-- **デプロイ先**: Google Cloud Run
+エンターテイメント向けAIチャットボットWebアプリケーション。Next.js App Router + Hono APIサーバー + Mastra AIエージェントフレームワークで構成。
 
-## 技術スタック
+## 開発コマンド
 
-### フロントエンド
-- **フレームワーク**: Next.js（App Router）
-- **スタイリング**: Tailwind CSS
-- **レスポンシブ対応**: 必須
+```bash
+# 初期セットアップ
+make setup              # 依存関係インストール + Prismaクライアント生成
 
-### バックエンド
-- **APIフレームワーク**: Hono
-- **ORM**: Prisma
-- **データベース**: MongoDB
+# 開発
+make dev                # 開発サーバー起動 (localhost:3000)
+make build              # 本番ビルド
+make lint               # ESLint実行
 
-### AI
-- **AIエージェントフレームワーク**: Mastra
-- **AIモデル**: Claude Sonnet 4（Anthropic）
+# Docker
+make docker-build       # Dockerイメージビルド
+make docker-run         # ローカルでDockerコンテナ起動
 
-## 機能要件
-
-### チャット機能
-- シンプルなテキストベースのチャット
-- ユーザーがメッセージを送信し、AIが応答を返す
-- ストリーミング応答: 対応（リアルタイム表示）
-
-### 会話履歴
-- セッション中のみ保持
-- ページをリロードまたはタブを閉じるとリセット
-- データベースへの永続化は不要
-
-### ユーザー管理
-- ログイン機能: なし
-- 認証: 不要
-- 誰でもすぐに利用可能
-
-## UI/UX要件
-
-### デザイン方向性
-- ビジネスライクでクリーンなデザイン
-- シンプルで使いやすいインターフェース
-
-### レイアウト
-- レスポンシブ対応（PC・タブレット・スマートフォン）
-- ダークモード: 不要
-
-### チャットUI
-- メッセージ入力欄
-- 送信ボタン
-- 会話履歴表示エリア
-- ユーザーとAIのメッセージを視覚的に区別
+# デプロイ
+make deploy             # Cloud Runにデプロイ
+```
 
 ## アーキテクチャ
 
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Frontend                          │
-│                 Next.js (App Router)                 │
-│                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │  Chat UI    │  │   State     │  │   API       │  │
-│  │  Component  │  │  Management │  │   Client    │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  │
-└─────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────┐
-│                    Backend                           │
-│                      Hono                            │
-│                                                      │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  │
-│  │   API       │  │   Mastra    │  │   Prisma    │  │
-│  │   Routes    │  │   Agent     │  │   Client    │  │
-│  └─────────────┘  └─────────────┘  └─────────────┘  │
-└─────────────────────────────────────────────────────┘
-                          │
-              ┌───────────┴───────────┐
-              ▼                       ▼
-┌─────────────────────┐   ┌─────────────────────┐
-│      Claude API     │   │      MongoDB        │
-│     (Anthropic)     │   │                     │
-└─────────────────────┘   └─────────────────────┘
+フロントエンド (Next.js App Router)
+    ↓ POST /api/chat (ストリーミング)
+バックエンド (Hono on Next.js API Routes)
+    ↓
+Mastra Agent → Claude Sonnet 4 (Anthropic API)
 ```
 
-## ディレクトリ構成（案）
+### 主要コンポーネント
 
-```
-mabl-aichat/
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── api/                # API Routes (Hono)
-│   │       └── [[...route]]/
-│   │           └── route.ts
-│   ├── components/             # Reactコンポーネント
-│   │   ├── Chat/
-│   │   │   ├── ChatContainer.tsx
-│   │   │   ├── MessageList.tsx
-│   │   │   ├── MessageInput.tsx
-│   │   │   └── Message.tsx
-│   │   └── Layout/
-│   │       └── Header.tsx
-│   ├── lib/                    # ユーティリティ
-│   │   ├── mastra/             # Mastra設定
-│   │   │   └── agent.ts
-│   │   └── prisma/             # Prisma設定
-│   │       └── client.ts
-│   └── styles/                 # スタイル
-│       └── globals.css
-├── prisma/
-│   └── schema.prisma           # Prismaスキーマ
-├── public/
-├── package.json
-├── tsconfig.json
-├── next.config.js
-├── Dockerfile                  # Cloud Run用
-└── CLAUDE.md
-```
+- **APIルート** (`src/app/api/[[...route]]/route.ts`): HonoをNext.js API Routesに統合。`/api/chat`（チャットエンドポイント）と`/api/health`（ヘルスチェック）を提供
+- **AIエージェント** (`src/lib/mastra/agent.ts`): Mastra Agentの設定。Claude Sonnet 4を使用
+- **チャットUI** (`src/components/Chat/`): React Client Componentsで構成。ストリーミングレスポンス対応
+- **認証ミドルウェア** (`src/middleware.ts`): Next.js Middlewareで実装したBasic認証（`SKIP_BASIC_AUTH=true`でスキップ可能）
 
-## API設計
+### データフロー
 
-### POST /api/chat
+1. `ChatContainer.tsx`でユーザー入力を受け取り、会話履歴とともに`/api/chat`へPOST
+2. HonoルートでMastra Agentにメッセージを渡し、ストリーミングレスポンスを開始
+3. `streamText`でクライアントにリアルタイム配信
+4. フロントエンドでReadableStreamを読み取り、UIを逐次更新
 
-チャットメッセージを送信し、AIの応答を取得する
+### 制約・制限
 
-**リクエスト**
-```json
-{
-  "message": "ユーザーのメッセージ",
-  "history": [
-    { "role": "user", "content": "過去のメッセージ" },
-    { "role": "assistant", "content": "過去の応答" }
-  ]
-}
-```
-
-**レスポンス**
-```json
-{
-  "response": "AIの応答メッセージ"
-}
-```
+- メッセージ最大文字数: 4000文字
+- 会話履歴の最大件数: 50件（API側）、100件（フロントエンド側）
+- レート制限: 1分間に20リクエストまで
+- APIタイムアウト: 60秒
 
 ## 環境変数
 
 ```env
-# Anthropic API
-ANTHROPIC_API_KEY=your_api_key
-
-# MongoDB
-DATABASE_URL=mongodb+srv://...
-
-# その他
-NODE_ENV=production
+ANTHROPIC_API_KEY=     # Anthropic APIキー（必須）
+DATABASE_URL=          # MongoDB接続文字列（Prisma用）
+SKIP_BASIC_AUTH=       # true で Basic認証をスキップ
+BASIC_AUTH_USER=       # Basic認証ユーザー名（デフォルト: admin）
+BASIC_AUTH_PASSWORD=   # Basic認証パスワード（デフォルト: password）
 ```
 
-## デプロイ
+## 技術スタック
 
-### Google Cloud Run
-- Dockerコンテナとしてデプロイ
-- 環境変数はCloud Runの設定で管理
-- 想定同時接続数: 5〜10人
-
-## 開発コマンド（Makefile）
-
-プロジェクトにはMakefileが用意されており、以下のコマンドで各種操作を実行できます。
-
-### 初期化
-
-```bash
-make install          # 依存関係をインストール
-make prisma-generate  # Prismaクライアントを生成
-make setup            # 初期セットアップ (install + prisma-generate)
-```
-
-### 開発
-
-```bash
-make dev              # 開発サーバーを起動
-make build            # 本番用ビルド
-make start            # 本番サーバーを起動
-make lint             # ESLintを実行
-```
-
-### Docker
-
-```bash
-make docker-build     # Dockerイメージをビルド
-make docker-run       # Dockerコンテナを起動（ローカルテスト用）
-```
-
-### Cloud Run デプロイ
-
-```bash
-# デフォルト設定でデプロイ
-make deploy
-
-# プロジェクトIDとリージョンを指定してデプロイ
-make deploy GCP_PROJECT=your-project-id GCP_REGION=asia-northeast1
-```
-
-デプロイ時の環境変数:
-- `GCP_PROJECT`: Google Cloud プロジェクトID（必須）
-- `GCP_REGION`: デプロイ先リージョン（デフォルト: asia-northeast1）
-- `SERVICE_NAME`: Cloud Runサービス名（デフォルト: mabl-aichat）
-
-**注意**: `ANTHROPIC_API_KEY`と`DATABASE_URL`はCloud Runコンソールで設定してください。
-
-### その他
-
-```bash
-make clean            # ビルド成果物を削除
-make health-check     # ヘルスチェックAPIを確認
-make help             # 利用可能なコマンド一覧を表示
-```
-
-### npmコマンド（直接実行）
-
-```bash
-npm install           # 依存関係のインストール
-npm run dev           # 開発サーバー起動
-npm run build         # ビルド
-npm start             # 本番サーバー起動
-npx prisma generate   # Prismaクライアント生成
-```
-
-## 今後の拡張可能性（参考）
-
-- 会話履歴の永続化
-- ユーザー認証機能
-- キャラクター選択機能
-- ストリーミング応答
-- ダークモード対応
+- **フロントエンド**: Next.js 16 (App Router), React 19, Tailwind CSS v4
+- **バックエンド**: Hono 4, Prisma 7 (MongoDB)
+- **AI**: Mastra Core, @ai-sdk/anthropic (Claude Sonnet 4)
